@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+pkill waybar || true
+waybar & disown || true
+
+command -v hyprctl >/dev/null 2>&1 && hyprctl reload || true
