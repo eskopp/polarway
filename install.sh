@@ -26,7 +26,7 @@ echo
 # Hyprland
 [[ -d "$REPO_DIR/configs/hypr"   ]] && link_one "$REPO_DIR/configs/hypr"   "$HOME/.config/hypr"
 [[ -d "$REPO_DIR/configs/waybar" ]] && link_one "$REPO_DIR/configs/waybar" "$HOME/.config/waybar"
-[[ -d "$REPO_DIR/configs/rofi"   ]] && link_one "$REPO_DIR/configs/rofi"   "$HOME/.config/rofi"
+[[ -d "$REPO_DIR/configs/wofi"   ]] && link_one "$REPO_DIR/configs/wofi"   "$HOME/.config/rofi"
 [[ -d "$REPO_DIR/configs/mako"   ]] && link_one "$REPO_DIR/configs/mako"   "$HOME/.config/mako"
 [[ -d "$REPO_DIR/configs/kitty"  ]] && link_one "$REPO_DIR/configs/kitty"  "$HOME/.config/kitty"
 
