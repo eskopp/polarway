@@ -125,4 +125,4 @@ This is not meant to be a universal theme — it is a personal, evolving setup.
 
 ## License
 
-This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+This project is licensed under the **MIT License**. See the `LICENSE` file for details. 
