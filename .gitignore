@@ -6,3 +6,5 @@
 *.swo
 .idea/
 .vscode/
+.backup/
+.polarway_last_backup
