@@ -6,6 +6,9 @@ This repository contains my personal configuration for Hyprland and related tool
 
 The goal is a simple, reproducible desktop setup without heavy frameworks or installers.
 
+> **Disclaimer:** This setup is provided **as-is**, without warranty of any kind.  
+> Use at your own risk. You are responsible for any changes made to your system.
+
 ---
 
 ## Features
@@ -35,10 +38,11 @@ polarway/
 │   └── scripts/
 ├── install.sh
 ├── uninstall.sh
+├── LICENSE
 └── README.md
 ```
 
-All configs live inside `configs/`.
+All configs live inside `configs/`.  
 During installation they are symlinked into `~/.config`.
 
 ---
@@ -120,6 +124,4 @@ This is not meant to be a universal theme — it is a personal, evolving setup.
 
 ## License
 
-Personal dotfiles. Use freely, modify as you like.
-
-No warranty.
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
