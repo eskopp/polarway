@@ -6,7 +6,8 @@ This repository contains my personal configuration for Hyprland and related tool
 
 The goal is a simple, reproducible desktop setup without heavy frameworks or installers.
 
-> **Disclaimer:** This setup is provided **as-is**, without warranty of any kind.  
+> [!CAUTION]
+> This setup is provided **as-is**, without warranty of any kind.  
 > Use at your own risk. You are responsible for any changes made to your system.
 
 ---
