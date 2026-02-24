@@ -1,0 +1,34 @@
+name: Mirror to Codeberg
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["**"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-codeberg
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mirror push to Codeberg
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+        run: |
+          set -euo pipefail
+          git fetch --prune --tags --force
+          CODEBERG_URL="https://eskopp:${CODEBERG_TOKEN}@codeberg.org/eskopp/polarvim.git"
+          git remote remove codeberg 2>/dev/null || true
+          git remote add codeberg "${CODEBERG_URL}"
+          git push --mirror --force codeberg
