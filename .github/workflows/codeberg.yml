@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --prune --tags --force
-          CODEBERG_URL="https://eskopp:${CODEBERG_TOKEN}@codeberg.org/eskopp/polarvim.git"
+          CODEBERG_URL="https://eskopp:${CODEBERG_TOKEN}@codeberg.org/eskopp/polarway.git"
           git remote remove codeberg 2>/dev/null || true
           git remote add codeberg "${CODEBERG_URL}"
           git push --mirror --force codeberg
