@@ -28,7 +28,7 @@ restore_backup() {
   backup_dir="$(cat "$BACKUP_MARKER")"
   [[ -d "$backup_dir" ]] || return 0
 
-  for name in hypr waybar wofi mako kitty; do
+  for name in hypr waybar wofi mako; do
     local dst="$HOME/.config/$name"
     local src="$backup_dir/$name"
     if [[ -e "$src" && ! -e "$dst" ]]; then
@@ -42,7 +42,6 @@ remove_link "$HOME/.config/hypr"
 remove_link "$HOME/.config/waybar"
 remove_link "$HOME/.config/wofi"
 remove_link "$HOME/.config/mako"
-remove_link "$HOME/.config/kitty"
 
 restore_backup
 

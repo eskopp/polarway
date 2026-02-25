@@ -64,6 +64,7 @@ ensure_pacman_wayland_stack() {
     waybar
     rofi-wayland
     mako
+    wlogout
 
     # wallpapers
     swww
@@ -184,7 +185,6 @@ ensure_random_wallpaper_on_start
 [[ -d "$REPO_DIR/configs/waybar" ]] && link_one "$REPO_DIR/configs/waybar" "$HOME/.config/waybar"
 [[ -d "$REPO_DIR/configs/wofi"   ]] && link_one "$REPO_DIR/configs/wofi"   "$HOME/.config/wofi"
 [[ -d "$REPO_DIR/configs/mako"   ]] && link_one "$REPO_DIR/configs/mako"   "$HOME/.config/mako"
-[[ -d "$REPO_DIR/configs/kitty"  ]] && link_one "$REPO_DIR/configs/kitty"  "$HOME/.config/kitty"
 
 # Helper scripts
 if [[ -d "$REPO_DIR/configs/scripts" ]]; then
