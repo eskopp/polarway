@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
+# Reload helper for Polarway:
+# - Restarts Waybar
+# - Reloads Hyprland config (if hyprctl is available)
+#
+# Notes:
+# - This is safe to run multiple times.
+# - We keep failures non-fatal where appropriate to avoid breaking workflows.
+
 set -euo pipefail
 
-pkill waybar || true
-waybar & disown || true
+# Restart Waybar:
+# - Kill any running instance (ignore errors if it's not running)
+# - Start a new one in the background and detach from the terminal
+pkill -x waybar >/dev/null 2>&1 || true
+nohup waybar >/dev/null 2>&1 & disown || true
 
-command -v hyprctl >/dev/null 2>&1 && hyprctl reload || true
+# Reload Hyprland configuration if available.
+# This does not restart Hyprland; it just re-parses and applies config changes.
+if command -v hyprctl >/dev/null 2>&1; then
+  hyprctl reload >/dev/null 2>&1 || true
+fi

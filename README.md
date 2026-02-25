@@ -1,125 +1,147 @@
 # Polarway
 
-Polarway is a minimal Wayland / Hyprland dotfiles setup focused on a clean, polar aesthetic.
+Polarway is a minimal Hyprland/Wayland dotfiles setup focused on a clean, reproducible desktop configuration managed via symlinks.
 
-This repository contains my personal configuration for Hyprland and related tools, managed via symlinks for easy installation and version control.
+This repo ships:
+- Hyprland config
+- Waybar config
+- Rofi config + theme
+- Mako notifications config
+- Helper scripts (reload, wallpaper randomizer, power menu)
+- Install/Uninstall scripts with automatic backups
 
-The goal is a simple, reproducible desktop setup without heavy frameworks or installers.
-
-> [!CAUTION]
-> This setup is provided **as-is**, without warranty of any kind.  
-> Use at your own risk. You are responsible for any changes made to your system.
+> **Warning**
+> This setup is provided **as-is**. Running `install.sh` will **replace** your existing configs by moving them into a backup directory inside this repo.
 
 ---
 
 ## Features
 
-- Hyprland configuration
-- Waybar setup
-- Mako notifications
-- Wofi application launcher
-- Helper scripts
-- Symlink-based install system
-- Automatic backups on install
-
----
-
-## Repository Structure
-
-```
-polarway/
-├── assets/
-├── configs/
-│   ├── hypr/
-│   ├── waybar/
-│   ├── mako/
-│   ├── wofi/
-│   └── scripts/
-├── install.sh
-├── uninstall.sh
-├── LICENSE
-└── README.md
-```
-
-All configs live inside `configs/`.  
-During installation they are symlinked into `~/.config`.
+- **Hyprland** config with sensible defaults and keybinds
+- **Waybar** status bar config
+- **Rofi (Wayland)** app launcher config + theme
+- **Mako** notifications config
+- **swww** wallpapers with a random wallpaper helper
+- Helper scripts for reloading and a simple power menu
+- Symlink-based installation with automatic backups
 
 ---
 
 ## Requirements
 
-- Hyprland
-- Waybar
-- Mako
-- Wofi
+- Arch-based system with `pacman`
+- `sudo` privileges (for installing packages)
+- A running Wayland session for wallpaper commands to take effect
 
-Optional tools depending on your setup:
-
-- brightnessctl
-- playerctl
-- wpctl (PipeWire)
+The installer will install required packages via pacman, including:
+- `hyprland`, `waybar`, `rofi-wayland`, `mako`, `swww`, `hyprlock`
+- plus common Wayland utilities (grim/slurp/wl-clipboard, PipeWire stack, fonts, etc.)
 
 ---
 
-## Installation
-
-Clone the repository:
+## Repository structure
 
 ```
-git clone https://github.com/eskopp/polarway.git
-cd polarway
+polarway/
+├── configs/
+│   ├── hypr/        # Hyprland config
+│   ├── waybar/      # Waybar config
+│   ├── rofi/        # Rofi config + theme
+│   ├── mako/        # Mako config
+│   └── scripts/     # Helper scripts (reload, wallpaper, power menu)
+├── install.sh
+├── uninstall.sh
+└── README.md
 ```
 
-Run the installer:
+---
 
-```
+## Install
+
+From inside the repo:
+
+```bash
 ./install.sh
 ```
 
-What this does:
+What `install.sh` does:
+1. Installs baseline packages via pacman
+2. Clones/updates `nord-background` into `~/git/nord-background`
+3. Ensures helper scripts exist inside `configs/scripts/`
+4. Wires Polarway autostart/keybind lines into the repo Hyprland config
+5. Symlinks config folders into `~/.config/*`
+6. Symlinks helper scripts into `~/.local/bin/*`
+7. Writes a backup marker file: `.polarway_last_backup`
 
-- Existing configs are backed up into `.backup/`
-- Symlinks are created from this repo into `~/.config`
-- Helper scripts are linked into `~/.local/bin`
-
-After install:
-
-- Restart Waybar:
-```
-pkill waybar; waybar &
-```
-
-- Reload Hyprland:
-```
-hyprctl reload
-```
+After installing, **log out and log back in** if you changed core Hyprland settings.
 
 ---
 
 ## Uninstall
 
-To remove Polarway symlinks:
-
-```
+```bash
 ./uninstall.sh
 ```
 
-Backups are kept inside the repository under `.backup/`.
+What `uninstall.sh` does:
+- Removes Polarway-managed symlinks in `~/.config/*` and `~/.local/bin/*`
+  (only if they point into this repo)
+- Removes Polarway-inserted wiring lines from the repo Hyprland config
+- Restores the most recent backup (if available)
+
+Backups are **kept** in this repo under `.backup/` and are not deleted.
 
 ---
 
-## Philosophy
+## Default keybinds
 
-- No automatic package installation
-- No hidden magic
-- Everything is explicit
-- Repo is the single source of truth
-- Designed for Hyprland + Wayland first
+Keybinds live in `configs/hypr/hyprland.conf`.
 
-This is not meant to be a universal theme — it is a personal, evolving setup.
+Common ones in the Polarway wiring:
+- **Win + R**: App launcher (Rofi)
+- **Win + W**: Random wallpaper
+- **Win + Escape**: Power menu (logout/reboot/shutdown)
+- **Win + Shift + Q**: Logout (terminate user session)
+- **Win + Shift + R**: Reload Hyprland + new wallpaper (if enabled)
+- **Win + L**: Lock screen (if configured)
+
+> Note: Your local `hyprland.conf` might contain additional binds beyond the wiring lines.
+
+---
+
+## Helper scripts
+
+After install, helper scripts are available in `~/.local/bin/`:
+
+- `polarway-wallpaper-random`  
+  Sets a random wallpaper from `~/git/nord-background` using `swww`.
+
+- `polarway-power-menu`  
+  Rofi-based power menu (logout/reboot/shutdown).
+
+- `polarway-reload`  
+  Restarts Waybar and reloads Hyprland config.
+
+---
+
+## Backups
+
+Before symlinks are created, existing targets are moved into:
+
+```
+polarway/.backup/YYYY-MM-DD_HH-MM-SS/
+```
+
+The most recent backup directory is recorded in:
+
+```
+polarway/.polarway_last_backup
+```
+
+Uninstall uses this marker to restore your previous configs *only if the destination path is missing*.
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+See `LICENSE`.
