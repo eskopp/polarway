@@ -281,9 +281,8 @@ ensure_hyprland_wiring_in_repo
 [[ -d "$REPO_DIR/configs/hypr"   ]] && link_one "$REPO_DIR/configs/hypr"   "$HOME/.config/hypr"
 [[ -d "$REPO_DIR/configs/waybar" ]] && link_one "$REPO_DIR/configs/waybar" "$HOME/.config/waybar"
 [[ -d "$REPO_DIR/configs/mako"   ]] && link_one "$REPO_DIR/configs/mako"   "$HOME/.config/mako"
+[[ -d "$REPO_DIR/configs/rofi"   ]] && link_one "$REPO_DIR/configs/rofi"   "$HOME/.config/rofi"
 
-# Keep this only if you actually have configs/wofi and use it.
-[[ -d "$REPO_DIR/configs/wofi"   ]] && link_one "$REPO_DIR/configs/wofi"   "$HOME/.config/wofi"
 
 # 6) Helper scripts -> ~/.local/bin
 if [[ -d "$REPO_DIR/configs/scripts" ]]; then

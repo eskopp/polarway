@@ -66,7 +66,7 @@ restore_backups() {
   restore_backup_item "$backup_dir" "$HOME/.config/hypr"
   restore_backup_item "$backup_dir" "$HOME/.config/waybar"
   restore_backup_item "$backup_dir" "$HOME/.config/mako"
-  restore_backup_item "$backup_dir" "$HOME/.config/wofi"
+  restore_backup_item "$backup_dir" "$HOME/.config/rofi"
 
   # Restore scripts if they were backed up
   restore_backup_item "$backup_dir" "$HOME/.local/bin/polarway-wallpaper-random"
@@ -80,7 +80,7 @@ restore_backups() {
 remove_link "$HOME/.config/hypr"
 remove_link "$HOME/.config/waybar"
 remove_link "$HOME/.config/mako"
-remove_link "$HOME/.config/wofi"  # optional
+remove_link "$HOME/.config/rofi"
 
 remove_link "$HOME/.local/bin/polarway-wallpaper-random"
 remove_link "$HOME/.local/bin/polarway-power-menu"

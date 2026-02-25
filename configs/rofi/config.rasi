@@ -1,0 +1,33 @@
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  icon-theme: "Papirus-Dark";
+  drun-display-format: "{name}";
+  display-drun: "Apps";
+  display-run:  "Run";
+  display-window: "Windows";
+
+  matching: "fuzzy";
+  sort: true;
+
+  lines: 8;
+  columns: 1;
+
+  location: 0;
+  anchor:   0;
+  width:    520;
+
+  padding: 16;
+  fixed-num-lines: true;
+
+  font: "JetBrainsMono Nerd Font 12";
+
+  separator-style: "none";
+
+  kb-row-up: "Up,Control+k";
+  kb-row-down: "Down,Control+j";
+  kb-accept-entry: "Return,KP_Enter";
+  kb-remove-to-eol: "Control+Shift+e";
+}
+
+@theme "theme"

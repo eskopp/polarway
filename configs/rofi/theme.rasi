@@ -1,0 +1,107 @@
+* {
+  bg:            #2E3440;
+  bg-alt:        #3B4252;
+  fg:            #ECEFF4;
+  fg-dim:        #D8DEE9;
+  accent:        #88C0D0;
+  urgent:        #BF616A;
+
+  border:        #4C566A;
+  border-focus:  #88C0D0;
+
+  radius:        14px;
+  border-width:  2px;
+
+  padding:       12px;
+  gap:           10px;
+}
+
+window {
+  location:     center;
+  anchor:       center;
+  transparency: "real";
+  background-color: @bg;
+  border:       @border-width;
+  border-color: @border;
+  border-radius: @radius;
+  padding:      18px;
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+  spacing: @gap;
+  background-color: transparent;
+}
+
+inputbar {
+  children: [ prompt, entry ];
+  spacing: 10px;
+  background-color: @bg-alt;
+  border-radius: 8px;      /* was: calc(@radius - 6px) */
+  padding: 12px;
+}
+
+prompt {
+  enabled: true;
+  text-color: @accent;
+  background-color: transparent;
+  padding: 0px 4px 0px 4px;
+}
+
+entry {
+  text-color: @fg;
+  placeholder: "Type to search…";
+  placeholder-color: @fg-dim;
+  background-color: transparent;
+  padding: 0px;
+}
+
+listview {
+  background-color: transparent;
+  columns: 1;
+  lines: 8;
+  fixed-height: true;
+  spacing: 8px;
+  scrollbar: false;
+}
+
+element {
+  children: [ element-icon, element-text ];
+  spacing: 10px;
+  background-color: transparent;
+  text-color: @fg-dim;
+  padding: @padding;
+  border-radius: 10px;     /* was: calc(@radius - 8px) */
+}
+
+element-icon {
+  size: 22px;
+  background-color: transparent;
+}
+
+element-text {
+  background-color: transparent;
+  text-color: inherit;
+}
+
+element selected {
+  background-color: @bg-alt;
+  text-color: @fg;
+  border: 2px;
+  border-color: @border-focus;
+}
+
+element selected element-text {
+  text-color: @fg;
+}
+
+element urgent {
+  text-color: @urgent;
+}
+
+error-message {
+  background-color: @bg;
+  text-color: @urgent;
+  padding: 12px;
+  border-radius: 10px;     /* was: calc(@radius - 8px) */
+}
