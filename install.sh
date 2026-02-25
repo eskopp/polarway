@@ -65,6 +65,9 @@ ensure_pacman_wayland_stack() {
     rofi-wayland
     mako
 
+    # wallpapers
+    swww
+
     # screenshots / clipboard
     grim
     slurp
@@ -99,15 +102,83 @@ ensure_pacman_wayland_stack() {
   sudo pacman -Syu --needed "${pkgs[@]}"
 }
 
+ensure_random_wallpaper_on_start() {
+  local wall_script_src="$REPO_DIR/configs/scripts/polarway-wallpaper-random"
+  local hypr_conf_src="$REPO_DIR/configs/hypr/hyprland.conf"
+
+  mkdir -p "$REPO_DIR/configs/scripts"
+  mkdir -p "$REPO_DIR/configs/hypr"
+
+  # Create/overwrite wallpaper script inside the repo (so it gets linked to ~/.local/bin)
+  cat > "$wall_script_src" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+WALL_DIR="${WALL_DIR:-$HOME/git/nord-background}"
+
+if [[ ! -d "$WALL_DIR" ]]; then
+  echo "polarway-wallpaper-random: directory not found: $WALL_DIR" >&2
+  exit 0
+fi
+
+if ! command -v swww >/dev/null 2>&1; then
+  echo "polarway-wallpaper-random: swww not installed" >&2
+  exit 0
+fi
+
+# Ensure swww daemon is running
+swww query >/dev/null 2>&1 || swww init >/dev/null 2>&1 || true
+
+# Pick a random wallpaper (jpg/jpeg/png)
+wp="$(
+  find "$WALL_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 \
+  | shuf -z -n 1 \
+  | tr -d '\0'
+)"
+
+if [[ -z "${wp:-}" || ! -f "$wp" ]]; then
+  echo "polarway-wallpaper-random: no images found in $WALL_DIR" >&2
+  exit 0
+fi
+
+# Transition is optional; fallback if it fails
+swww img "$wp" --transition-type grow --transition-duration 0.6 >/dev/null 2>&1 || \
+swww img "$wp" >/dev/null 2>&1
+EOF
+
+  chmod +x "$wall_script_src"
+
+  # Ensure Hyprland config exists in the repo
+  [[ -f "$hypr_conf_src" ]] || touch "$hypr_conf_src"
+
+  # Add exec-once lines only if missing
+  if ! grep -qE '^\s*exec-once\s*=\s*swww\s+init\s*$' "$hypr_conf_src"; then
+    printf '\nexec-once = swww init\n' >> "$hypr_conf_src"
+  fi
+
+  if ! grep -qE '^\s*exec-once\s*=\s*~/.local/bin/polarway-wallpaper-random\s*$' "$hypr_conf_src"; then
+    printf 'exec-once = ~/.local/bin/polarway-wallpaper-random\n' >> "$hypr_conf_src"
+  fi
+
+  # Add a reload+wallpaper keybind only if missing (uses $mainMod if present in your config)
+  if ! grep -qF 'hyprctl reload && ~/.local/bin/polarway-wallpaper-random' "$hypr_conf_src"; then
+    printf '\nbind = $mainMod SHIFT, R, exec, hyprctl reload && ~/.local/bin/polarway-wallpaper-random\n' >> "$hypr_conf_src"
+  fi
+}
 
 echo "Repo:      $REPO_DIR"
 echo "Backups:   $BACKUP_DIR"
 echo
 
-# Ensure external wallpaper repository exists (used by your other scripts/config)
+# Install baseline packages first (so tools exist)
+ensure_pacman_wayland_stack
+
+# Ensure external wallpaper repository exists
 ensure_nord_background_repo
 
-ensure_pacman_wayland_stack
+# Ensure wallpaper script + Hyprland autostart/reload wiring exist in the repo configs
+ensure_random_wallpaper_on_start
+
 # Config symlinks
 [[ -d "$REPO_DIR/configs/hypr"   ]] && link_one "$REPO_DIR/configs/hypr"   "$HOME/.config/hypr"
 [[ -d "$REPO_DIR/configs/waybar" ]] && link_one "$REPO_DIR/configs/waybar" "$HOME/.config/waybar"
@@ -130,3 +201,4 @@ echo
 echo "Done."
 echo "Tip: restart Waybar with: pkill waybar; waybar &"
 echo "Tip: reload Hyprland with: hyprctl reload"
+echo "Tip: force a new random wallpaper with: ~/.local/bin/polarway-wallpaper-random"

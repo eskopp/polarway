@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WALL_DIR="${WALL_DIR:-$HOME/git/nord-background}"
+
+if [[ ! -d "$WALL_DIR" ]]; then
+  echo "polarway-wallpaper-random: directory not found: $WALL_DIR" >&2
+  exit 0
+fi
+
+if ! command -v swww >/dev/null 2>&1; then
+  echo "polarway-wallpaper-random: swww not installed" >&2
+  exit 0
+fi
+
+# Ensure swww daemon is running
+swww query >/dev/null 2>&1 || swww init >/dev/null 2>&1 || true
+
+# Pick a random wallpaper (jpg/jpeg/png)
+wp="$(
+  find "$WALL_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 \
+  | shuf -z -n 1 \
+  | tr -d '\0'
+)"
+
+if [[ -z "${wp:-}" || ! -f "$wp" ]]; then
+  echo "polarway-wallpaper-random: no images found in $WALL_DIR" >&2
+  exit 0
+fi
+
+# Transition is optional; fallback if it fails
+swww img "$wp" --transition-type grow --transition-duration 0.6 >/dev/null 2>&1 || \
+swww img "$wp" >/dev/null 2>&1
