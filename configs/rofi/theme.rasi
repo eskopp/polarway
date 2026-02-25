@@ -37,7 +37,7 @@ inputbar {
   children: [ prompt, entry ];
   spacing: 10px;
   background-color: @bg-alt;
-  border-radius: 8px;      /* was: calc(@radius - 6px) */
+  border-radius: 8px;   
   padding: 12px;
 }
 
@@ -71,7 +71,7 @@ element {
   background-color: transparent;
   text-color: @fg-dim;
   padding: @padding;
-  border-radius: 10px;     /* was: calc(@radius - 8px) */
+  border-radius: 10px;     
 }
 
 element-icon {
@@ -103,5 +103,5 @@ error-message {
   background-color: @bg;
   text-color: @urgent;
   padding: 12px;
-  border-radius: 10px;     /* was: calc(@radius - 8px) */
+  border-radius: 10px;     
 }
