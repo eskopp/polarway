@@ -19,9 +19,40 @@ link_one() {
   ln -sfnv "$src" "$dst"
 }
 
+ensure_nord_background_repo() {
+  local git_dir="$HOME/git"
+  local repo_dir="$git_dir/nord-background"
+  local repo_url="https://github.com/ChrisTitusTech/nord-background.git"
+
+  if ! command -v git >/dev/null 2>&1; then
+    echo "Error: git is not installed. Please install git and re-run."
+    exit 1
+  fi
+
+  mkdir -p "$git_dir"
+
+  if [[ -d "$repo_dir/.git" ]]; then
+    echo "nord-background: updating in $repo_dir"
+    git -C "$repo_dir" pull --ff-only
+    return 0
+  fi
+
+  if [[ -e "$repo_dir" ]]; then
+    echo "Error: $repo_dir exists but is not a git repository."
+    echo "Please move/remove it and re-run."
+    exit 1
+  fi
+
+  echo "nord-background: cloning into $repo_dir"
+  git clone --depth 1 "$repo_url" "$repo_dir"
+}
+
 echo "Repo:      $REPO_DIR"
 echo "Backups:   $BACKUP_DIR"
 echo
+
+# Ensure external wallpaper repository exists (used by your other scripts/config)
+ensure_nord_background_repo
 
 # Config symlinks
 [[ -d "$REPO_DIR/configs/hypr"   ]] && link_one "$REPO_DIR/configs/hypr"   "$HOME/.config/hypr"
