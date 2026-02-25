@@ -1,31 +1,27 @@
-```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
 # -----------------------------------------------------------------------------
-# Polarway Uninstall Script (English, well-commented)
+# Polarway Uninstall Script (safe + conservative)
 #
-# Goals:
-#   - Remove only Polarway-managed symlinks from the user's home directory.
-#   - Remove Polarway-inserted config snippets from Polarway-managed config files.
-#   - Restore backups created by install.sh (if present).
-#   - Avoid deleting or modifying unrelated user files.
+# What this script does:
+#   1) Removes Polarway marker blocks from repo-managed config files.
+#   2) Removes only Polarway-managed symlinks from $HOME (symlinks into this repo).
+#   3) Restores backups created by install.sh (if present).
 #
-# Notes on safety:
-#   - This script ONLY removes symlinks that point into the Polarway repo.
-#   - It will NOT delete real directories/files that are not symlinks.
-#   - It restores backups only if the destination path does not exist anymore.
+# Safety:
+#   - Does NOT delete normal files/dirs that are not symlinks into this repo.
+#   - Restores backups only if the destination does not exist anymore.
 # -----------------------------------------------------------------------------
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_MARKER="$REPO_DIR/.polarway_last_backup"
 
 # -----------------------------------------------------------------------------
-# Helpers
+# Helpers: symlink detection / removal
 # -----------------------------------------------------------------------------
 
 is_polarway_link() {
-  # Returns 0 if $1 is a symlink pointing somewhere inside $REPO_DIR.
   local dst="$1"
   [[ -L "$dst" ]] || return 1
 
@@ -35,7 +31,6 @@ is_polarway_link() {
 }
 
 remove_link() {
-  # Remove a symlink if and only if it points into this repo.
   local dst="$1"
   if is_polarway_link "$dst"; then
     echo "Removing Polarway symlink: $dst"
@@ -45,45 +40,45 @@ remove_link() {
   fi
 }
 
-remove_lines_matching() {
-  # Removes lines that contain a given fixed substring from a file.
-  #
-  # This is used to remove Polarway-inserted "append_line_if_missing" snippets
-  # from the repo-managed Hyprland config (configs/hypr/hyprland.conf).
-  #
-  # It is intentionally conservative:
-  #   - If the file doesn't exist, do nothing.
-  #   - Only removes lines containing the exact substring provided.
+# -----------------------------------------------------------------------------
+# Helpers: remove marker blocks
+# -----------------------------------------------------------------------------
+
+remove_block_between_markers() {
   local file="$1"
-  local needle="$2"
+  local name="$2"
 
   [[ -f "$file" ]] || return 0
 
-  if grep -Fq -- "$needle" "$file"; then
-    echo "Removing lines from $file matching: $needle"
+  local begin end
+  begin="^# --- POLARWAY BEGIN: ${name} ---$"
+  end="^# --- POLARWAY END: ${name} ---$"
+
+  if grep -Eq -- "$begin" "$file"; then
+    echo "Removing Polarway block '${name}' from: $file"
     local tmp
     tmp="$(mktemp)"
-    grep -Fv -- "$needle" "$file" > "$tmp"
+    sed -E "/$begin/,/$end/d" "$file" > "$tmp"
     mv -- "$tmp" "$file"
   fi
 }
 
+# -----------------------------------------------------------------------------
+# Backups restore logic
+# -----------------------------------------------------------------------------
+
 restore_backup_item() {
-  # Restore a single destination from backup if it is currently missing.
-  #
-  # install.sh uses a stable naming scheme to store backups:
-  #   "$HOME/.config/hypr" -> "HOME__config__hypr"
-  # plus an older scheme fallback by basename.
   local backup_dir="$1"
   local dst="$2"
 
-  # If the destination already exists (or is a symlink), do not overwrite it.
+  # Do not overwrite anything that exists
   [[ -e "$dst" || -L "$dst" ]] && return 0
 
-  # New backup naming scheme (HOME__config__hypr)
+  # New backup naming scheme: HOME__config__hypr
   local key
   key="${dst/#$HOME\//HOME\/}"
   key="${key//\//__}"
+
   if [[ -e "$backup_dir/$key" ]]; then
     echo "Restoring backup: $backup_dir/$key -> $dst"
     mkdir -p "$(dirname "$dst")"
@@ -91,7 +86,7 @@ restore_backup_item() {
     return 0
   fi
 
-  # Old backup naming scheme (basename only, e.g. "hypr")
+  # Old fallback: basename only
   local base
   base="$(basename "$dst")"
   if [[ -e "$backup_dir/$base" ]]; then
@@ -105,10 +100,6 @@ restore_backup_item() {
 }
 
 restore_backups() {
-  # Restore the last backup made by install.sh (if available).
-  #
-  # The marker file contains the absolute path to the last backup directory:
-  #   .polarway_last_backup -> /path/to/repo/.backup/YYYY-MM-DD_HH-MM-SS
   [[ -f "$BACKUP_MARKER" ]] || return 0
 
   local backup_dir
@@ -117,48 +108,30 @@ restore_backups() {
 
   echo "Backup marker found. Attempting restore from: $backup_dir"
 
-  # Restore config dirs if they were backed up
   restore_backup_item "$backup_dir" "$HOME/.config/hypr"
   restore_backup_item "$backup_dir" "$HOME/.config/waybar"
   restore_backup_item "$backup_dir" "$HOME/.config/mako"
   restore_backup_item "$backup_dir" "$HOME/.config/rofi"
 
-  # Restore helper scripts if they were backed up
   restore_backup_item "$backup_dir" "$HOME/.local/bin/polarway-wallpaper-random"
   restore_backup_item "$backup_dir" "$HOME/.local/bin/polarway-power-menu"
 }
 
 # -----------------------------------------------------------------------------
-# 1) Remove Polarway-inserted snippets from repo-managed Hyprland config
+# 1) Remove Polarway-inserted blocks from repo-managed Hyprland config
 # -----------------------------------------------------------------------------
-#
-# In your install.sh you append these lines to:
-#   $REPO_DIR/configs/hypr/hyprland.conf
-#
-# Even though $HOME/.config/hypr is a symlink to the repo directory, it's nice
-# to clean the repo config as well so nothing "weird" remains after uninstall.
-#
-# If you prefer to keep the repo config untouched, you can remove this section.
-#
 
 HYPR_REPO_CONF="$REPO_DIR/configs/hypr/hyprland.conf"
 
-# Autostart wiring
-remove_lines_matching "$HYPR_REPO_CONF" "exec-once = swww init"
-remove_lines_matching "$HYPR_REPO_CONF" "~/.local/bin/polarway-wallpaper-random"
-
-# Keybind wiring
-remove_lines_matching "$HYPR_REPO_CONF" "hyprctl reload && ~/.local/bin/polarway-wallpaper-random"
-remove_lines_matching "$HYPR_REPO_CONF" "~/.local/bin/polarway-power-menu"
-remove_lines_matching "$HYPR_REPO_CONF" "loginctl terminate-user"
+remove_block_between_markers "$HYPR_REPO_CONF" "wallpaper"
+remove_block_between_markers "$HYPR_REPO_CONF" "power-menu"
+remove_block_between_markers "$HYPR_REPO_CONF" "wlogout"
+remove_block_between_markers "$HYPR_REPO_CONF" "terminate-user"
+remove_block_between_markers "$HYPR_REPO_CONF" "screenshots"
 
 # -----------------------------------------------------------------------------
 # 2) Remove Polarway symlinks from the user's home
 # -----------------------------------------------------------------------------
-#
-# These are created by install.sh via link_one().
-# We remove only symlinks that point into the Polarway repo.
-#
 
 remove_link "$HOME/.config/hypr"
 remove_link "$HOME/.config/waybar"
@@ -169,11 +142,10 @@ remove_link "$HOME/.local/bin/polarway-wallpaper-random"
 remove_link "$HOME/.local/bin/polarway-power-menu"
 
 # -----------------------------------------------------------------------------
-# 3) Restore backups (if present)
+# 3) Restore backups
 # -----------------------------------------------------------------------------
 restore_backups
 
 echo
 echo "Done."
 echo "Note: backups are kept inside the repo under .backup/ (not deleted)."
-```
