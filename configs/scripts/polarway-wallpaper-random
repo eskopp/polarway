@@ -1,32 +1,58 @@
 #!/usr/bin/env bash
+# Strict bash settings:
+# -e: exit immediately if a command exits with a non-zero status
+# -u: treat unset variables as an error
+# -o pipefail: make pipelines fail if any command fails
 set -euo pipefail
 
+# Directory containing wallpaper images.
+# If WALL_DIR is set in the environment, use it; otherwise default to "$HOME/git/nord-background".
 WALL_DIR="${WALL_DIR:-$HOME/git/nord-background}"
 
+# Check whether the wallpaper directory exists.
+# If it doesn't, print a message and exit successfully (0) so autostart doesn't hard-fail.
 if [[ ! -d "$WALL_DIR" ]]; then
   echo "polarway-wallpaper-random: directory not found: $WALL_DIR" >&2
   exit 0
 fi
 
+# Ensure the 'swww' binary is available.
+# If it's missing, print a message and exit successfully (0).
 if ! command -v swww >/dev/null 2>&1; then
   echo "polarway-wallpaper-random: swww not installed" >&2
   exit 0
 fi
 
-# Ensure swww daemon is running
-swww query >/dev/null 2>&1 || swww init >/dev/null 2>&1 || true
+# Ensure the swww daemon is running (most reliable way).
+# If it's not running, start it in the background, detach it, and give it a short moment to initialize.
+if ! pgrep -x swww-daemon >/dev/null 2>&1; then
+  swww-daemon >/dev/null 2>&1 &
+  disown || true
+  sleep 0.2
+fi
 
+# If the daemon still isn't responsive, bail out quietly.
+if ! swww query >/dev/null 2>&1; then
+  echo "polarway-wallpaper-random: swww-daemon not responding" >&2
+  exit 0
+fi
+
+# Pick a random wallpaper file from WALL_DIR (top-level only) with extensions jpg/jpeg/png.
+# -print0 / -z / tr -d '\0' ensures we correctly handle filenames with spaces/special chars.
 wp="$(
-  find "$WALL_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 \
+  find "$WALL_DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 \
   | shuf -z -n 1 \
   | tr -d '\0'
 )"
 
+# Validate the selected wallpaper path.
+# If none was found or it's not a file, print a message and exit successfully (0).
 if [[ -z "${wp:-}" || ! -f "$wp" ]]; then
   echo "polarway-wallpaper-random: no images found in $WALL_DIR" >&2
   exit 0
 fi
 
-# Transition is optional; fallback if it fails
+# Set the wallpaper with an optional transition.
+# If the transition fails for any reason, fall back to a plain set.
 swww img "$wp" --transition-type grow --transition-duration 0.6 >/dev/null 2>&1 || \
 swww img "$wp" >/dev/null 2>&1
