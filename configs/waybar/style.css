@@ -1,12 +1,114 @@
+/* ~/.config/waybar/style.css
+   Clean, slim left sidebar styling for Waybar (GTK CSS compatible)
+*/
+
+/* ---------- Global defaults ---------- */
 * {
-  font-family: sans-serif;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: "Inter", "Noto Sans", "JetBrainsMono Nerd Font", sans-serif;
   font-size: 12px;
 }
 
+/* ---------- Waybar container ---------- */
 window#waybar {
-  padding: 0 8px;
+  background: rgba(15, 17, 21, 0.45);
+  color: #e6e6e6;
 }
 
-#clock, #network, #pulseaudio, #battery, #tray {
-  padding: 0 10px;
+/* ---------- Module containers ---------- */
+#workspaces,
+#clock,
+#pulseaudio,
+#network,
+#battery,
+#tray {
+  margin: 3px;
+  padding: 4px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Keep everything compact on narrow bars */
+#workspaces *,
+#clock *,
+#pulseaudio *,
+#network *,
+#battery *,
+#tray * {
+  min-width: 0;
+}
+
+/* ---------- Workspaces ---------- */
+#workspaces {
+  padding: 4px 4px;
+}
+
+#workspaces button {
+  padding: 4px 4px;
+  margin: 3px 0;
+  border-radius: 8px;
+  color: rgba(230, 230, 230, 0.75);
+  background: transparent;
+}
+
+#workspaces button:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+#workspaces button.active {
+  background: rgba(120, 180, 255, 0.22);
+  color: #ffffff;
+}
+
+#workspaces button.urgent {
+  background: rgba(255, 90, 90, 0.25);
+  color: #ffffff;
+}
+
+/* ---------- Clock ---------- */
+#clock {
+  padding: 6px 4px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* ---------- Right-side icon modules ---------- */
+#pulseaudio,
+#network,
+#battery {
+  color: rgba(230, 230, 230, 0.92);
+}
+
+/* Muted audio */
+#pulseaudio.muted {
+  color: rgba(230, 230, 230, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Battery states */
+#battery.warning {
+  background: rgba(255, 196, 0, 0.16);
+}
+
+#battery.critical {
+  background: rgba(255, 90, 90, 0.22);
+}
+
+/* Tray */
+#tray {
+  padding: 4px 4px;
+}
+
+/* ---------- Tooltips ---------- */
+tooltip {
+  background: rgba(15, 17, 21, 0.92);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+tooltip label {
+  color: #eaeaea;
 }
