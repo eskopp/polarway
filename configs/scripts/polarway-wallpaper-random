@@ -16,7 +16,6 @@ fi
 # Ensure swww daemon is running
 swww query >/dev/null 2>&1 || swww init >/dev/null 2>&1 || true
 
-# Pick a random wallpaper (jpg/jpeg/png)
 wp="$(
   find "$WALL_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 \
   | shuf -z -n 1 \

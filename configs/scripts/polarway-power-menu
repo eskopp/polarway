@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v rofi >/dev/null 2>&1; then
+  echo "polarway-power-menu: rofi not installed" >&2
+  exit 0
+fi
+
+choice="$(
+  printf "logout\nreboot\nshutdown\n" \
+  | rofi -dmenu -p "power"
+)"
+
+case "$choice" in
+  logout)
+    loginctl terminate-user "$USER"
+    ;;
+  reboot)
+    systemctl reboot
+    ;;
+  shutdown)
+    systemctl poweroff
+    ;;
+  *)
+    exit 0
+    ;;
+esac
