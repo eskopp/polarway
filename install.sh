@@ -47,6 +47,59 @@ ensure_nord_background_repo() {
   git clone --depth 1 "$repo_url" "$repo_dir"
 }
 
+ensure_pacman_wayland_stack() {
+  if ! command -v pacman >/dev/null 2>&1; then
+    echo "Error: pacman not found (this script is for Arch-based systems)."
+    exit 1
+  fi
+
+  local pkgs=(
+    # compositor + portals + auth agent
+    hyprland
+    xdg-desktop-portal
+    xdg-desktop-portal-hyprland
+    polkit-kde-agent
+
+    # bar / launcher / notifications
+    waybar
+    rofi-wayland
+    mako
+
+    # screenshots / clipboard
+    grim
+    slurp
+    wl-clipboard
+    swappy
+
+    # audio (PipeWire)
+    pipewire
+    pipewire-alsa
+    pipewire-pulse
+    wireplumber
+    pavucontrol
+
+    # network / bluetooth
+    networkmanager
+    network-manager-applet
+    bluez
+    bluez-utils
+
+    # common Wayland helpers
+    xdg-utils
+    qt5-wayland
+    qt6-wayland
+    glfw-wayland
+
+    # fonts for Waybar icons/glyphs
+    ttf-jetbrains-mono-nerd
+    ttf-nerd-fonts-symbols
+  )
+
+  echo "Installing Wayland/Hyprland baseline packages via pacman..."
+  sudo pacman -Syu --needed "${pkgs[@]}"
+}
+
+
 echo "Repo:      $REPO_DIR"
 echo "Backups:   $BACKUP_DIR"
 echo
@@ -54,6 +107,7 @@ echo
 # Ensure external wallpaper repository exists (used by your other scripts/config)
 ensure_nord_background_repo
 
+ensure_pacman_wayland_stack
 # Config symlinks
 [[ -d "$REPO_DIR/configs/hypr"   ]] && link_one "$REPO_DIR/configs/hypr"   "$HOME/.config/hypr"
 [[ -d "$REPO_DIR/configs/waybar" ]] && link_one "$REPO_DIR/configs/waybar" "$HOME/.config/waybar"
