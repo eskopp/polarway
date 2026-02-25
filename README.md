@@ -16,7 +16,6 @@ The goal is a simple, reproducible desktop setup without heavy frameworks or ins
 
 - Hyprland configuration
 - Waybar setup
-- Kitty terminal config
 - Mako notifications
 - Wofi application launcher
 - Helper scripts
@@ -33,7 +32,6 @@ polarway/
 ├── configs/
 │   ├── hypr/
 │   ├── waybar/
-│   ├── kitty/
 │   ├── mako/
 │   ├── wofi/
 │   └── scripts/
@@ -52,7 +50,6 @@ During installation they are symlinked into `~/.config`.
 
 - Hyprland
 - Waybar
-- Kitty
 - Mako
 - Wofi
 
@@ -125,4 +122,4 @@ This is not meant to be a universal theme — it is a personal, evolving setup.
 
 ## License
 
-This project is licensed under the **MIT License**. See the `LICENSE` file for details. 
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
